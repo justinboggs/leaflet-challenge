@@ -1,5 +1,5 @@
 // Store our API endpoint inside queryUrl
-var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson"
+var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson"
 
 // Perform a GET request to the query URL
 d3.json(queryUrl, function (data) {
@@ -7,57 +7,21 @@ d3.json(queryUrl, function (data) {
     createMap(data.features);
 });
 
-// Define a function we want to run once for each feature in the features array
-// Give each feature a popup describing the place and time of the earthquake
-function bindPopMaker(feature, layer) {
-    layer.bindPopup("<h3>" + feature.properties.place +
-        "</h3><hr><p>" + new Date(feature.properties.time) + "</p>");
-}
-
-
 function createMap(earthquakeData) {
-
-
-
-    // Create a GeoJSON layer containing the features array on the earthquakeData object
-    // Run the bindPopMaker function once for each piece of data in the array
-
-    //
-
-
-
-    // Method 1 Using L.geoJSON to create the marker layer group.
-    // var earthquakes = L.geoJSON(earthquakeData, {
-    //   onEachFeature: bindPopMaker
-    // });
-
-    // Method 1.5 Using L.geoJSON to do circles
-    // var earthquakes = L.geoJSON(earthquakeData, {
-    //   pointToLayer : function(geoJsonPoint, latlng) {
-    //     return L.circle(latlng, {
-    //       color: "red",
-    //       fillColor: "red",
-    //       fillOpacity: 0.75,
-    //       radius: 10000
-    //     });
-    // },
-    //   onEachFeature: bindPopMaker
-    // });
-
-
-
-    // Method 2 Create the LayerGroup without the L.geoJson
 
     // Loop through locations and markers elements
     EarthquakeMarkers = earthquakeData.map((feature) =>
-        //Yes, the geojson 'FORMAT' stores it in reverse, for some reason. (L.geojson parses it as [lat,lng] for you)
-        //lat                         //long  
-        L.marker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]])
+        L.circle([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], feature.properties.mag * 10000, {
+            stroke: true,
+            weight: 1,
+            color: "white",
+            fillColor: "lightblue"
+        })
         .bindPopup("<h2> Magnitude : " + feature.properties.mag +
             "</h2><hr><h3>" + feature.properties.place +
             "</h3><hr><p>" + new Date(feature.properties.time) + "</p>")
     )
-
+    
     // Add the earthquakes layer to a marker cluster group.
     var earthquakes = L.layerGroup(EarthquakeMarkers)
 
@@ -103,12 +67,12 @@ function createMap(earthquakeData) {
         "Light Map": lightmap,
         "Dark Map": darkmap,
         "Satellite": satellite,
-        "Outdoors": outdoors
+        "Outdoors": outdoors,
     };
 
     // Create overlay object to hold our overlay layer
     var overlayMaps = {
-        Earthquakes: earthquakes
+        Earthquakes: earthquakes,
     };
 
     // Create our map, giving it the streetmap and earthquakes layers to display on load
@@ -116,8 +80,8 @@ function createMap(earthquakeData) {
         center: [
             37.09, -95.71
         ],
-        zoom: 4,
-        layers: [streetmap, earthquakes]
+        zoom: 6,
+        layers: [darkmap, earthquakes]
     });
 
     // Create a layer control
