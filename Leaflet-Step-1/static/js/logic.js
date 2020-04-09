@@ -7,15 +7,24 @@ d3.json(queryUrl, function (data) {
     createMap(data.features);
 });
 
+function colors(i) {
+    if (i > 4) {
+        return "orange"
+    }
+};
+
 function createMap(earthquakeData) {
 
     // Loop through locations and markers elements
     EarthquakeMarkers = earthquakeData.map((feature) =>
-        L.circle([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], feature.properties.mag * 10000, {
+
+        L.circle([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], feature.properties.mag * 20000, {
             stroke: true,
             weight: 1,
-            fillColor: "lightblue",
-            fillOpacity: .5
+            fillColor: "orangered",
+            fillOpacity: .5,
+            color: "white",
+            fill: true
         })
         .bindPopup("<h2> Magnitude : " + feature.properties.mag +
             "</h2><hr><h3>" + feature.properties.place +
