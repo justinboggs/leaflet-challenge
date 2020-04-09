@@ -14,8 +14,8 @@ function createMap(earthquakeData) {
         L.circle([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], feature.properties.mag * 10000, {
             stroke: true,
             weight: 1,
-            color: "white",
-            fillColor: "lightblue"
+            fillColor: "lightblue",
+            fillOpacity: .5
         })
         .bindPopup("<h2> Magnitude : " + feature.properties.mag +
             "</h2><hr><h3>" + feature.properties.place +
