@@ -7,21 +7,15 @@ d3.json(queryUrl, function (data) {
     createMap(data.features);
 });
 
-function colors(i) {
-    if (i > 4) {
-        return "orange"
-    }
-};
-
 function createMap(earthquakeData) {
 
     // Loop through locations and markers elements
     EarthquakeMarkers = earthquakeData.map((feature) =>
-
-        L.circle([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], feature.properties.mag * 20000, {
+        
+        L.circle([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], feature.properties.mag * 15000, {
             stroke: true,
             weight: 1,
-            fillColor: "orangered",
+            fillColor: "#3377bb",
             fillOpacity: .5,
             color: "white",
             fill: true
@@ -30,7 +24,7 @@ function createMap(earthquakeData) {
             "</h2><hr><h3>" + feature.properties.place +
             "</h3><hr><p>" + new Date(feature.properties.time) + "</p>")
     )
-    
+
     // Add the earthquakes layer to a marker cluster group.
     var earthquakes = L.layerGroup(EarthquakeMarkers)
 
@@ -89,7 +83,7 @@ function createMap(earthquakeData) {
         center: [
             37.09, -95.71
         ],
-        zoom: 6,
+        zoom: 4,
         layers: [darkmap, earthquakes]
     });
 
