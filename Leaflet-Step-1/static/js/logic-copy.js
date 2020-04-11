@@ -1,51 +1,4 @@
 // Store our API endpoint inside queryUrl
-var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson"
-
-// Perform a GET request to the query URL
-d3.json(queryUrl, function (data) {
-    // Once we get a response, send the data.features object to the createMap function
-    createMap(data.features);
-});
-
-function createMap(earthquakeData) {
-
-    colorS = function getColor(magnitude) {
-        switch (true) {
-            case magnitude > 5:
-                return "#ea2c2c";
-            case magnitude > 4:
-                return "#ea822c";
-            case magnitude > 3:
-                return "#ee9c00";
-            case magnitude > 2:
-                return "#eecc00";
-            case magnitude > 1:
-                return "#d4ee00";
-            default:
-                return "#98ee00";
-        }
-    }
-
-    // Loop through locations and markers elements
-    EarthquakeMarkers = earthquakeData.map((feature) =>
-        
-
-        L.circle([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], feature.properties.mag * 15000, {
-            stroke: true,
-            weight: 1,
-            fillColor: feature.properties.mag,
-            radius: feature.properties.mag,
-            fillOpacity: .5,
-            color: colorS
-        })
-        .bindPopup("<h2> Magnitude : " + feature.properties.mag +
-            "</h2><hr><h3>" + feature.properties.place +
-            "</h3><hr><p>" + new Date(feature.properties.time) + "</p>")
-    )
-
-    // Add the earthquakes layer to a marker cluster group.
-    var earthquakes = L.layerGroup(EarthquakeMarkers)
-
     // Define streetmap and darkmap layers
     var streetmap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
         attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
@@ -90,6 +43,49 @@ function createMap(earthquakeData) {
         "Satellite": satellite,
         "Outdoors": outdoors,
     };
+    
+
+var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson"
+
+// Perform a GET request to the query URL
+d3.json(queryUrl, function (data) {
+    function circleStyle(feature) {
+        return {
+            stroke: true,
+            weight: 1,
+            fillColor: getColor(feature.properties.mag),
+            fillOpacity: .5,
+            color: "white",
+            fill: true,
+            radius: getRadius(feature.properties.mag)
+        };
+    }
+    function getColor(magnitude) {
+        switch (true) {
+        case magnitude > 5:
+            return "#ea2c2c";
+        case magnitude > 4:
+            return "#ea822c";
+        case magnitude > 3:
+            return "#ee9c00";
+        case magnitude > 2:
+            return "#eecc00";
+        case magnitude > 1:
+            return "#d4ee00";
+        default:
+            return "#98ee00";
+        }
+    }
+    function getRadius(magnitude) {
+        if (magnitude === 0) {
+            return 1;
+        }
+        
+        return magnitude * 50;
+    }
+
+    // Add the earthquakes layer to a marker cluster group.
+    var earthquakes = L.layerGroup(circleStyle)
 
     // Create overlay object to hold our overlay layer
     var overlayMaps = {
@@ -111,4 +107,5 @@ function createMap(earthquakeData) {
     L.control.layers(baseMaps, overlayMaps, {
         collapsed: false
     }).addTo(myMap);
-}
+
+})
