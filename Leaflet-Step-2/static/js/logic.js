@@ -141,7 +141,7 @@ d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geoj
     function (platedata) {
       //
       L.geoJson(platedata, {
-          color: "silver",
+          color: "purple",
           weight: 2
         })
         .addTo(tectonicplates);
