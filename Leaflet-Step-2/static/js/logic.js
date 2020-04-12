@@ -1,4 +1,11 @@
 // create map layers
+var satmap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
+  attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
+  maxZoom: 18,
+  id: "mapbox.satellite",
+  accessToken: API_KEY
+});
+
 var lightmap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
   attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
   maxZoom: 18,
@@ -20,7 +27,7 @@ var myMap = L.map("map", {
     37.09, -95.71
   ],
   zoom: 4,
-  layers: [lightmap, darkmap]
+  layers: [satmap, lightmap, darkmap]
 });
 
 // add layers
@@ -29,6 +36,7 @@ var tectonicplates = new L.LayerGroup();
 
 // set base maps
 var baseMaps = {
+  "Satellite": satmap,
   "Light Map": lightmap,
   "Dark Map": darkmap
 };
@@ -51,27 +59,27 @@ d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geoj
       opacity: 1,
       fillOpacity: .7,
       fillColor: getColor(feature.properties.mag),
-      color: "#000000",
+      color: "gray",
       radius: getRadius(feature.properties.mag),
       stroke: true,
-      weight: 0.7
+      weight: 0.5
     };
   }
 
   function getColor(magnitude) {
     switch (true) {
       case magnitude > 5:
-        return "#7C878C";
+        return "red";
       case magnitude > 4:
-        return "#536878";
+        return "orange";
       case magnitude > 3:
-        return "#9F9F9F";
+        return "yellow";
       case magnitude > 2:
-        return "#8E8982";
+        return "blue";
       case magnitude > 1:
-        return "#000776";
+        return "green";
       default:
-        return "#070B47";
+        return "gray";
     }
   }
 
@@ -109,17 +117,17 @@ d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geoj
 
     var mags = [0, 1, 2, 3, 4, 5];
     var colors = [
-      "#7C878C",
-      "#536878",
-      "#9F9F9F",
-      "#8E8982",
-      "#000776",
-      "#070B47"
+      "gray",
+      "green",
+      "blue",
+      "yellow",
+      "orange",
+      "red"
     ];
 
     // add the text and colored square to the legend
     for (var i = 0; i < mags.length; i++) {
-      div.innerHTML += "<li style='background: " + colors[i] + "'></i> " +
+      div.innerHTML += "<li style='background: " + colors[i] + "'></li> " +
         mags[i] + (mags[i + 1] ? "&ndash;" + mags[i + 1] + "<br>" : "+");
     }
     return div;
@@ -133,7 +141,7 @@ d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geoj
     function (platedata) {
       //
       L.geoJson(platedata, {
-          color: "orange",
+          color: "silver",
           weight: 2
         })
         .addTo(tectonicplates);
