@@ -1,11 +1,4 @@
-var darkmap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
-  attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
-  maxZoom: 18,
-  id: "mapbox.dark",
-  accessToken: API_KEY
-});
-
-
+// create map layers
 var lightmap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
   attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
   maxZoom: 18,
@@ -13,31 +6,45 @@ var lightmap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png
   accessToken: API_KEY
 });
 
+
+var darkmap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
+  attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
+  maxZoom: 18,
+  id: "mapbox.dark",
+  accessToken: API_KEY
+});
+
+// create map
 var myMap = L.map("map", {
   center: [
     37.09, -95.71
   ],
   zoom: 4,
-  layers: [darkmap, lightmap]
+  layers: [lightmap, darkmap]
 });
 
+// add layers
 var earthquakes = new L.LayerGroup();
 var tectonicplates = new L.LayerGroup();
 
+// set base maps
 var baseMaps = {
-  "Dark Map": darkmap,
-  "Light Map": lightmap
+  "Light Map": lightmap,
+  "Dark Map": darkmap
 };
 
+// set overlay maps
 var overlayMaps = {
   Earthquakes: earthquakes,
   "Tectonic Plates": tectonicplates
 };
 
+// add control and pass in layers
 L.control.layers(baseMaps, overlayMaps, {
   collapsed: true
 }).addTo(myMap);
 
+// retrieve geojson info and set marker size and colors
 d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson", function (data) {
   function markerStyle(feature) {
     return {
@@ -73,21 +80,18 @@ d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geoj
       return 1;
     }
 
-    return magnitude * 4;
+    return magnitude * 3;
   }
 
+  // add circles to the earthquake layer and bind popup to each circle
   L.geoJson(data, {
-    // We turn each feature into a circleMarker on the map.
     pointToLayer: function (feature, latlng) {
       return L.circleMarker(latlng);
     },
     style: markerStyle,
-    // We create a popup for each marker to display the magnitude and location of
-    // the earthquake after the marker has been created and styled
     onEachFeature: function (feature, layer) {
       layer.bindPopup("Magnitude: " + feature.properties.mag + "<br>Location: " + feature.properties.place);
     }
-    // We add the data to the earthquake layer instead of directly to the map.
   }).addTo(earthquakes);
 
   earthquakes.addTo(myMap);
@@ -97,7 +101,7 @@ d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geoj
     background: "white"
   });
 
-  // Then we add all the details for our legend
+  // add the details to the legend.
   legend.onAdd = function () {
     var div = L
       .DomUtil
@@ -113,7 +117,7 @@ d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geoj
       "#070B47"
     ];
 
-    // Loop through our intervals and generate a label with a colored square for each interval.
+    // add the text and colored square to the legend
     for (var i = 0; i < mags.length; i++) {
       div.innerHTML += "<li style='background: " + colors[i] + "'></i> " +
         mags[i] + (mags[i + 1] ? "&ndash;" + mags[i + 1] + "<br>" : "+");
@@ -121,20 +125,20 @@ d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geoj
     return div;
   };
 
-  // We add our legend to the map.
+  // add the legend
   legend.addTo(myMap);
 
+  // retrieve geojson info and add to the plates layer
   d3.json("static/json/PB2002_boundaries.json",
     function (platedata) {
-      // Adding our geoJSON data, along with style information, to the tectonicplates
-      // layer.
+      //
       L.geoJson(platedata, {
           color: "orange",
           weight: 2
         })
         .addTo(tectonicplates);
 
-      // Then add the tectonicplates layer to the map.
+      // add the tectonicplates layer to the map.
       tectonicplates.addTo(myMap);
     });
 
